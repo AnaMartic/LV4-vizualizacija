@@ -9,14 +9,13 @@
             font-family: sans-serif;
             font-size: 12px;
             fill: white;
-            pointer-events: none; /* Tekst ne blokira klik na segment */
+            pointer-events: none;
         }
         .arc path {
             cursor: pointer;
             stroke: #fff;
             stroke-width: 2px;
         }
-        /* Efekt promjene boje kada se mišem prijeđe preko segmenta */
         .arc path:hover {
             opacity: 0.8;
         }
@@ -27,12 +26,11 @@
 
     <script>
         var data = [
-            {voce: "Jabuke", kolicina: 20},
-            {voce: "Kruške", kolicina: 40},
-            {voce: "Šljive", kolicina: 50},
-            {voce: "Dinje", kolicina: 80},
-            {voce: "Lubenice", kolicina: 30},
-            {voce: "Breskve", kolicina: 10}
+            {voce: "Jabuke", kolicina: 17},
+            {voce: "Kruške", kolicina: 4},
+            {voce: "Banana", kolicina: 83},
+            {voce: "Jagoda", kolicina: 47},
+            {voce: "Ribizla", kolicina: 1}
         ];
 
         var width = 400, height = 400, radius = 200;
@@ -52,21 +50,15 @@
             .append("g")
             .attr("class", "arc");
 
-        // CRTANJE I REGISTRACIJA DOGAĐAJA
+        // REGISTRACIJA DOGAĐAJA - Samo ispis u konzolu na klik
         arcs.append("path")
             .attr("fill", function(d, i) { return color(i); })
             .attr("d", arc)
             .on("click", function(d) {
-                // d.data sadrži izvorni objekt iz našeg polja 'data'
-                console.log("Naziv: " + d.data.voce + ", Količina: " + d.data.kolicina);
-                alert("Odabrali ste: " + d.data.voce + " (" + d.data.kolicina + ")");
-            })
-            .on("mouseover", function(d) {
-                // Opcionalno: ispis i na sam prijelaz miša
-                console.log("Trenutno iznad: " + d.data.voce);
+                // Ispisuje samo naziv i kolicinu u konzolu (F12)
+                console.log(d.data.voce + ": " + d.data.kolicina);
             });
 
-        // Dodavanje teksta (iz 1. zadatka)
         arcs.append("text")
             .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
             .attr("text-anchor", "middle")
