@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>Zadatak 3</title>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+        .arc text {
+            font-family: sans-serif;
+            font-size: 12px;
+            fill: white;
+            pointer-events: none; /* Tekst ne blokira klik na segment */
+        }
+        .arc path {
+            cursor: pointer;
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        /* Efekt promjene boje kada se mišem prijeđe preko segmenta */
+        .arc path:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="grafikon"></div>
+
+    <script>
+        var data = [
+            {voce: "Jabuke", kolicina: 20},
+            {voce: "Kruške", kolicina: 40},
+            {voce: "Šljive", kolicina: 50},
+            {voce: "Dinje", kolicina: 80},
+            {voce: "Lubenice", kolicina: 30},
+            {voce: "Breskve", kolicina: 10}
+        ];
+
+        var width = 400, height = 400, radius = 200;
+        var color = d3.scale.category10();
+
+        var arc = d3.svg.arc().outerRadius(radius).innerRadius(0);
+        var pie = d3.layout.pie().value(function(d) { return d.kolicina; });
+
+        var svg = d3.select("#grafikon").append("svg")
+            .attr("width", width).attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
+
+        var arcs = svg.selectAll("g.arc")
+            .data(pie(data))
+            .enter()
+            .append("g")
+            .attr("class", "arc");
+
+        // CRTANJE I REGISTRACIJA DOGAĐAJA
+        arcs.append("path")
+            .attr("fill", function(d, i) { return color(i); })
+            .attr("d", arc)
+            .on("click", function(d) {
+                // d.data sadrži izvorni objekt iz našeg polja 'data'
+                console.log("Naziv: " + d.data.voce + ", Količina: " + d.data.kolicina);
+                alert("Odabrali ste: " + d.data.voce + " (" + d.data.kolicina + ")");
+            })
+            .on("mouseover", function(d) {
+                // Opcionalno: ispis i na sam prijelaz miša
+                console.log("Trenutno iznad: " + d.data.voce);
+            });
+
+        // Dodavanje teksta (iz 1. zadatka)
+        arcs.append("text")
+            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+            .attr("text-anchor", "middle")
+            .text(function(d) { return d.data.voce + ": " + d.data.kolicina; });
+    </script>
+</body>
+</html>

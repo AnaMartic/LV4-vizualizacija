@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>Zadatak 4</title>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+        .node { cursor: pointer; }
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
+        }
+        .node text { font: 12px sans-serif; }
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // 1. PODACI (Hijerarhija)
+        var treeData = [{
+            "name": "Direktor",
+            "children": [
+                { "name": "Voditelj IT",
+                  "children": [
+                      { "name": "Programer 1" },
+                      { "name": "Programer 2" }
+                  ]
+                },
+                { "name": "Voditelj HR",
+                  "children": [
+                      { "name": "Asistent" }
+                  ]
+                }
+            ]
+        }];
+
+        var width = 600, height = 400;
+        var i = 0;
+
+        var tree = d3.layout.tree().size([height, width - 150]);
+        var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width).attr("height", height)
+            .append("g")
+            .attr("transform", "translate(100,0)");
+
+        var root = treeData[0];
+        update(root);
+
+        function update(source) {
+            // Izračunaj novi raspored stabla
+            var nodes = tree.nodes(root).reverse();
+            var links = tree.links(nodes);
+
+            nodes.forEach(function(d) { d.y = d.depth * 180; });
+
+            // CRTANJE ČVOROVA
+            var node = svg.selectAll("g.node")
+                .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .on("click", click); // REGISTRACIJA KLIKA
+
+            nodeEnter.append("circle").attr("r", 10)
+                .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+            nodeEnter.append("text")
+                .attr("x", function(d) { return d.children || d._children ? -13 : 13; })
+                .attr("dy", ".35em")
+                .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+                .text(function(d) { return d.name; });
+
+            // AŽURIRANJE I UKLANJANJE (za animaciju/skrivanje)
+            node.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+            node.select("circle").style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+            node.exit().remove();
+
+            // CRTANJE VEZA (LINIJA)
+            var link = svg.selectAll("path.link")
+                .data(links, function(d) { return d.target.id; });
+
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("d", diagonal);
+
+            link.attr("d", diagonal);
+            link.exit().remove();
+        }
+
+        // FUNKCIJA ZA SKRIVANJE/PRIKAZ DJECE NA KLIK
+        function click(d) {
+            if (d.children) {
+                d._children = d.children; // Spremi djecu u privremenu varijablu
+                d.children = null;        // "Obriši" ih iz glavne varijable (skrivanje)
+            } else {
+                d.children = d._children; // Vrati djecu natrag
+                d._children = null;       // Isprazni privremenu
+            }
+            update(d); // Ponovno nacrtaj stablo s novim stanjem
+        }
+    </script>
+</body>
+</html>

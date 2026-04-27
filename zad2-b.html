@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Zadatak 2b</title>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+        .arc text { font-family: sans-serif; font-size: 11px; fill: black; }
+    </style>
+</head>
+<body>
+    <script>
+        var data = [
+            {voce: "Jabuke", kolicina: 20},
+            {voce: "Kruške", kolicina: 40},
+            {voce: "Šljive", kolicina: 50},
+            {voce: "Dinje", kolicina: 80},
+            {voce: "Lubenice", kolicina: 5},
+            {voce: "Breskve", kolicina: 2}
+        ];
+
+        var width = 500, height = 500, radius = 200;
+        var color = d3.scale.category10();
+
+        var arc = d3.svg.arc().outerRadius(radius).innerRadius(0);
+        var pie = d3.layout.pie().value(function(d) { return d.kolicina; });
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width).attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
+
+        var arcs = svg.selectAll("g.arc").data(pie(data)).enter().append("g").attr("class", "arc");
+
+        arcs.append("path")
+            .attr("fill", function(d, i) { return color(i); })
+            .attr("d", arc);
+
+        arcs.append("text")
+            .attr("transform", function(d) {
+                // Izračun kuta rotacije: sredina startAngle i endAngle pretvorena u stupnjeve
+                var angle = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
+                return "translate(" + arc.centroid(d) + ") rotate(" + angle + ")";
+            })
+            .attr("text-anchor", "middle")
+            .text(function(d) { return d.data.voce + ": " + d.data.kolicina; });
+    </script>
+</body>
+</html>
